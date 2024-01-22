@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "maurice",
+    "managerId": null
+  },
+  {
+    "id": 2,
+    "name": "hayleigh",
+    "managerId": 1
+  },
+  {
+    "id": 3,
+    "name": "edwyn",
+    "managerId": 1
+  },
+  {
+    "id": 4,
+    "name": "keane",
+    "managerId": null
+  },
+  {
+    "id": 5,
+    "name": "kylee",
+    "managerId": null
+  }
+]

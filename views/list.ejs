@@ -1,0 +1,66 @@
+<% function employeeList(employee) { %>
+<li>
+  <% if (employee.name == locals.name) { %>
+  <a
+    style="background-color: lightgreen"
+    href="employees?name=<%= employee.name %>"
+    class="tf-nc"
+    ><%= employee.name %></a
+  >
+  <% } else { %>
+  <a href="employees?name=<%= employee.name %>" class="tf-nc"
+    ><%= employee.name %></a
+  >
+  <% } %> <% if (employee.directReports && employee.directReports.length > 0) {
+  %>
+  <ul>
+    <% for (let directReport of employee.directReports) { %> <%=
+    employeeList(directReport) %> <% } %>
+  </ul>
+  <% } %>
+</li>
+<% } %> <% function managerList(list) { if (list.length === 0) { return; } %>
+<ul>
+  <li>
+    <% if (list[0] == locals.name) { %>
+    <a
+      style="background-color: lightgreen"
+      href="employees?name=<%= list[0] %>"
+      class="tf-nc"
+      ><%= list[0] %>
+    </a>
+    <% } else { %>
+    <a href="employees?name=<%= list[0] %>" class="tf-nc"><%= list[0] %></a>
+    <% } %> <% managerList(list.slice(1)); %>
+  </li>
+</ul>
+<%}%> <% if (locals.name && locals.data.foundEmployees &&
+locals.data.foundEmployees.length == 1) { %> <%=
+managerList(locals.data.foundEmployees[0].managerNames) %>
+<br />
+<br />
+<h2>Direct Report(s) and Indirect Report(s)</h2>
+<br />
+<p>
+  Total Direct Reports: <%= locals.data.foundEmployees[0].directReports.length
+  || 0 %>
+</p>
+<p>
+  Total Indirect Reports: <%=
+  locals.data.foundEmployees[0].indirectReports.length || 0 %>
+</p>
+<br />
+<ul>
+  <%= employeeList(locals.data.foundEmployees[0].employee) %>
+</ul>
+<% } else if (locals.name && locals.data.foundEmployees.length == 0) { %>
+<p>Not having hierarchy!</p>
+<% } else if (locals.name && locals.data.foundEmployees.length > 1) { %>
+<p>Has multiple managers!</p>
+<br />
+<% locals.data.foundEmployees.forEach(function (emp) { %> <%=
+managerList(emp.managerNames) %> <% }); %> <% } else { %>
+<ul>
+  <% locals.root.forEach(function (emp) { %> <%= employeeList(emp) %> <% }); %>
+  <% } %>
+</ul>
