@@ -6,6 +6,10 @@ const port = 3000;
 
 app.set("view engine", "ejs");
 
+app.get("*", (req, res) => {
+  res.redirect("/employees");
+});
+
 const employeeRouter = require("./routes/employees");
 
 app.use("/employees", employeeRouter);
