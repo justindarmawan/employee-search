@@ -9,6 +9,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
+- Browser: Chrome, Firefox, etc. I'm using Chrome.
 
 ### Installing
 
