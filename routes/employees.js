@@ -6,9 +6,12 @@ const { buildTree, searchEmployeeByName } = require("../functions/tree");
 
 router.use(fileUpload());
 
+const SESSION_SECRET = "read-file-employees";
+const EMPLOYEES_VIEW = "employees";
+
 router.use(
   session({
-    secret: "read-file-employees",
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
@@ -17,28 +20,31 @@ router.use(
 router.get("/", (req, res) => {
   try {
     const jsonData = req.session ? req.session.fileContents : null;
+
     if (jsonData) {
-      json = JSON.parse(jsonData);
-      treeRoots = buildTree(json);
-      employeeToSearch = req.query.name;
-      result = searchEmployeeByName(treeRoots[0], employeeToSearch);
+      const json = JSON.parse(jsonData);
+      const treeRoots = buildTree(json);
+      const employeeToSearch = req.query.name;
+      const result = searchEmployeeByName(treeRoots[0], employeeToSearch);
+
       if (result.foundEmployees.length > 0) {
         result.foundEmployees.forEach((map) => {
           map.managerNames.push(employeeToSearch);
         });
       }
-      res.render("employee", {
+
+      res.render(EMPLOYEES_VIEW, {
         data: result,
         name: employeeToSearch,
         root: treeRoots,
         fileContents: jsonData,
       });
     } else {
-      res.render("employee");
+      res.render(EMPLOYEES_VIEW);
     }
   } catch (parseError) {
     console.error("Error parsing JSON:", parseError);
-    res.status(500).send("Error parsing JSON");
+    res.status(500).send("Error rendering employee page");
   }
 });
 
@@ -46,10 +52,12 @@ router.post("/", (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send("No files were uploaded.");
   }
-  uploadedFile = req.files.file;
-  fileContents = uploadedFile.data.toString("utf8");
+
+  const uploadedFile = req.files.file;
+  const fileContents = uploadedFile.data.toString("utf8");
   req.session.fileContents = fileContents;
-  res.redirect("/employees");
+
+  res.redirect(`/${EMPLOYEES_VIEW}`);
 });
 
 module.exports = router;

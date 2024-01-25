@@ -1,42 +1,34 @@
-<% function employeeList(employee) { %>
+<% function renderEmployeeLink(employee, highlight) { %>
+<a
+  href="employees?name=<%= employee.name %>"
+  class="tf-nc <%= highlight ? 'highlight' : '' %>"
+  ><%= employee.name %></a
+>
+<% } %> <% function renderEmployeeList(employee) { %>
 <li>
-  <% if (employee.name == locals.name) { %>
-  <a
-    style="background-color: lightgreen"
-    href="employees?name=<%= employee.name %>"
-    class="tf-nc"
-    ><%= employee.name %></a
-  >
-  <% } else { %>
-  <a href="employees?name=<%= employee.name %>" class="tf-nc"
-    ><%= employee.name %></a
-  >
-  <% } %> <% if (employee.directReports && employee.directReports.length > 0) {
-  %>
+  <% renderEmployeeLink(employee, employee.name === locals.name); %> <% if
+  (employee.directReports && employee.directReports.length > 0) { %>
   <ul>
-    <% for (let directReport of employee.directReports) { %> <%=
-    employeeList(directReport) %> <% } %>
+    <% employee.directReports.forEach(directReport => { %> <%=
+    renderEmployeeList(directReport) %> <% }); %>
   </ul>
   <% } %>
 </li>
-<% } %> <% function managerList(list) { if (list.length === 0) { return; } %>
+<% } %> <% function renderManagerLink(manager) { %>
+<a
+  href="employees?name=<%= manager %>"
+  class="tf-nc <%= manager === locals.name ? 'highlight' : '' %>"
+  ><%= manager %></a
+>
+<% } %> <% function renderManagerList(list) { %> <% if (list.length > 0) { %>
 <ul>
   <li>
-    <% if (list[0] == locals.name) { %>
-    <a
-      style="background-color: lightgreen"
-      href="employees?name=<%= list[0] %>"
-      class="tf-nc"
-      ><%= list[0] %>
-    </a>
-    <% } else { %>
-    <a href="employees?name=<%= list[0] %>" class="tf-nc"><%= list[0] %></a>
-    <% } %> <% managerList(list.slice(1)); %>
+    <%= renderManagerLink(list[0]) %> <% renderManagerList(list.slice(1)); %>
   </li>
 </ul>
-<%}%> <% if (locals.name && locals.data.foundEmployees &&
-locals.data.foundEmployees.length == 1) { %> <%=
-managerList(locals.data.foundEmployees[0].managerNames) %>
+<% } %> <% } %> <% if (locals.name && locals.data.foundEmployees &&
+locals.data.foundEmployees.length === 1) { %> <%=
+renderManagerList(locals.data.foundEmployees[0].managerNames) %>
 <br />
 <br />
 <h2>Direct Report(s) and Indirect Report(s)</h2>
@@ -51,16 +43,16 @@ managerList(locals.data.foundEmployees[0].managerNames) %>
 </p>
 <br />
 <ul>
-  <%= employeeList(locals.data.foundEmployees[0].employee) %>
+  <%= renderEmployeeList(locals.data.foundEmployees[0].employee) %>
 </ul>
-<% } else if (locals.name && locals.data.foundEmployees.length == 0) { %>
+<% } else if (locals.name && locals.data.foundEmployees.length === 0) { %>
 <p>Not having hierarchy!</p>
 <% } else if (locals.name && locals.data.foundEmployees.length > 1) { %>
 <p>Has multiple managers!</p>
 <br />
-<% locals.data.foundEmployees.forEach(function (emp) { %> <%=
-managerList(emp.managerNames) %> <% }); %> <% } else { %>
+<% locals.data.foundEmployees.forEach(emp => { %> <%=
+renderManagerList(emp.managerNames) %> <% }); %> <% } else { %>
 <ul>
-  <% locals.root.forEach(function (emp) { %> <%= employeeList(emp) %> <% }); %>
-  <% } %>
+  <% locals.root.forEach(emp => { %> <%= renderEmployeeList(emp) %> <% }); %>
 </ul>
+<% } %>

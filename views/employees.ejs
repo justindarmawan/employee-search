@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -9,21 +9,21 @@
       href="https://unpkg.com/treeflex/dist/css/treeflex.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div style="display: flex">
+    <div class="header">
       <h1>
-        <a style="color: black; text-decoration: none" href="employees"
-          >Employee Hierarchy</a
-        >
+        <a href="employees" class="header-link">Employee Hierarchy</a>
       </h1>
-      <div style="display: flex; margin-left: 50px; align-items: center">
-        <form action="/employees" method="post" encType="multipart/form-data">
+      <div class="upload-form">
+        <form action="/employees" method="post" enctype="multipart/form-data">
           <input type="file" name="file" />
           <input type="submit" value="Upload" />
         </form>
       </div>
     </div>
+
     <% if (locals.fileContents) { %>
     <h2><%= locals.name %></h2>
     <div class="tf-tree"><%- include('list'); %></div>

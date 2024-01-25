@@ -11,17 +11,17 @@ function buildTree(data, managerId = null) {
     return null;
   }
 
-  const employeeMap = new Map();
+  const idToEmployeeMap = new Map();
 
   data.forEach((employee) => {
     const employeeNode = new EmployeeNode(employee.id, employee.name);
-    employeeMap.set(employee.id, employeeNode);
+    idToEmployeeMap.set(employee.id, employeeNode);
   });
 
   const roots = [];
 
   data.forEach((employee) => {
-    const employeeNode = employeeMap.get(employee.id);
+    const employeeNode = idToEmployeeMap.get(employee.id);
     const currentManagerId = employee.managerId;
 
     if (
@@ -35,6 +35,7 @@ function buildTree(data, managerId = null) {
       roots.push(employeeNode);
     }
   });
+
   return roots.length > 0 ? roots : null;
 }
 
@@ -55,13 +56,14 @@ function searchEmployeeByName(root, name, parents = []) {
   }
 
   if (Array.isArray(root.directReports)) {
-    for (const direct of root.directReports) {
-      const directResult = searchEmployeeByName(direct, name, [
-        ...parents,
-        root.name,
-      ]);
+    root.directReports.forEach((direct) => {
+      const directResult = searchEmployeeByName(
+        direct,
+        name,
+        parents.concat(root.name)
+      );
       result.foundEmployees.push(...directResult.foundEmployees);
-    }
+    });
   }
 
   return result;
@@ -79,10 +81,10 @@ function getIndirectReports(employee) {
   }
 
   let indirectReports = [];
-  for (const direct of employee.directReports) {
+  employee.directReports.forEach((direct) => {
     indirectReports.push(...getDirectReports(direct));
     indirectReports.push(...getIndirectReports(direct));
-  }
+  });
 
   return indirectReports;
 }
