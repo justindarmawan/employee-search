@@ -18,13 +18,17 @@ class EmployeesController {
     this.employeesSearchService = employeesSearchService;
   }
 
+  // Handles the GET request to retrieve and display the employees tree
   getEmployeesTree(req, res) {
     try {
       const employeesJsonData = req.session ? req.session.fileContents : null;
 
       if (employeesJsonData) {
+        // Parse JSON data and build the employees tree
         const employeesData = JSON.parse(employeesJsonData);
         const treeRoots = this.employeesTreeBuilder.buildTree(employeesData);
+
+        // Search for an employee by name in the tree
         const employeeToSearch = req.query.name;
         const result = this.employeesSearchService.searchEmployeeByName(
           treeRoots[0],
@@ -52,6 +56,7 @@ class EmployeesController {
     }
   }
 
+  // Handles the POST request to upload a file employees JSON data
   uploadFileEmployees(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send("No files were uploaded.");

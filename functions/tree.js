@@ -6,7 +6,9 @@ class EmployeeNode {
   }
 }
 
+// Builds a tree structure representing the employee hierarchy.
 class EmployeesTreeBuilder {
+  // Recursively builds the employee tree from the given data.
   buildTree(data, managerId = null) {
     if (!Array.isArray(data) || data.length === 0) {
       return null;
@@ -14,6 +16,7 @@ class EmployeesTreeBuilder {
 
     const idToEmployeesMap = new Map();
 
+    // Create employee nodes and populate the map.
     data.forEach((employee) => {
       const employeeNode = new EmployeeNode(employee.id, employee.name);
       idToEmployeesMap.set(employee.id, employeeNode);
@@ -21,6 +24,7 @@ class EmployeesTreeBuilder {
 
     const roots = [];
 
+    // Build the tree structure based on manager-subordinate relationships.
     data.forEach((employee) => {
       const employeeNode = idToEmployeesMap.get(employee.id);
       const currentManagerId = employee.managerId;
@@ -41,7 +45,9 @@ class EmployeesTreeBuilder {
   }
 }
 
+// Service for searching employees in the hierarchy by name.
 class EmployeesSearchService {
+  // Recursively searches for an employee by name in the tree.
   searchEmployeeByName(root, name, parents = []) {
     if (!root || !name) {
       return { foundEmployees: [] };
@@ -50,6 +56,7 @@ class EmployeesSearchService {
     let result = { foundEmployees: [] };
 
     if (root.name === name) {
+      // If the employee's name matches, add details to the result.
       result.foundEmployees.push({
         employee: root,
         managerNames: parents,
@@ -59,6 +66,7 @@ class EmployeesSearchService {
     }
 
     if (Array.isArray(root.directReports)) {
+      // Search recursively in the direct reports of the employee.
       root.directReports.forEach((direct) => {
         const directResult = this.searchEmployeeByName(
           direct,
@@ -72,12 +80,14 @@ class EmployeesSearchService {
     return result;
   }
 
+  // Retrieves names of direct reports for a given employee.
   getDirectReports(employee) {
     return employee.directReports
       ? employee.directReports.map((direct) => direct.name)
       : [];
   }
 
+  // Retrieves names of indirect reports for a given employee.
   getIndirectReports(employee) {
     if (!employee.directReports || employee.directReports.length === 0) {
       return [];
@@ -85,6 +95,7 @@ class EmployeesSearchService {
 
     let indirectReports = [];
     employee.directReports.forEach((direct) => {
+      // Search recursively in the indirect reports of the employee.
       indirectReports.push(...this.getDirectReports(direct));
       indirectReports.push(...this.getIndirectReports(direct));
     });
