@@ -6,90 +6,94 @@ class EmployeeNode {
   }
 }
 
-function buildTree(data, managerId = null) {
-  if (!Array.isArray(data) || data.length === 0) {
-    return null;
-  }
-
-  const idToEmployeeMap = new Map();
-
-  data.forEach((employee) => {
-    const employeeNode = new EmployeeNode(employee.id, employee.name);
-    idToEmployeeMap.set(employee.id, employeeNode);
-  });
-
-  const roots = [];
-
-  data.forEach((employee) => {
-    const employeeNode = idToEmployeeMap.get(employee.id);
-    const currentManagerId = employee.managerId;
-
-    if (
-      currentManagerId === managerId ||
-      (managerId === null && currentManagerId === null)
-    ) {
-      const subtree = buildTree(data, employee.id);
-      if (subtree) {
-        employeeNode.directReports = subtree;
-      }
-      roots.push(employeeNode);
+class EmployeesTreeBuilder {
+  buildTree(data, managerId = null) {
+    if (!Array.isArray(data) || data.length === 0) {
+      return null;
     }
-  });
 
-  return roots.length > 0 ? roots : null;
-}
+    const idToEmployeesMap = new Map();
 
-function searchEmployeeByName(root, name, parents = []) {
-  if (!root || !name) {
-    return { foundEmployees: [] };
-  }
-
-  let result = { foundEmployees: [] };
-
-  if (root.name === name) {
-    result.foundEmployees.push({
-      employee: root,
-      managerNames: parents,
-      directReports: getDirectReports(root),
-      indirectReports: getIndirectReports(root),
+    data.forEach((employee) => {
+      const employeeNode = new EmployeeNode(employee.id, employee.name);
+      idToEmployeesMap.set(employee.id, employeeNode);
     });
-  }
 
-  if (Array.isArray(root.directReports)) {
-    root.directReports.forEach((direct) => {
-      const directResult = searchEmployeeByName(
-        direct,
-        name,
-        parents.concat(root.name)
-      );
-      result.foundEmployees.push(...directResult.foundEmployees);
+    const roots = [];
+
+    data.forEach((employee) => {
+      const employeeNode = idToEmployeesMap.get(employee.id);
+      const currentManagerId = employee.managerId;
+
+      if (
+        currentManagerId === managerId ||
+        (managerId === null && currentManagerId === null)
+      ) {
+        const subtree = this.buildTree(data, employee.id);
+        if (subtree) {
+          employeeNode.directReports = subtree;
+        }
+        roots.push(employeeNode);
+      }
     });
-  }
 
-  return result;
+    return roots.length > 0 ? roots : null;
+  }
 }
 
-function getDirectReports(employee) {
-  return employee.directReports
-    ? employee.directReports.map((direct) => direct.name)
-    : [];
-}
+class EmployeesSearchService {
+  searchEmployeeByName(root, name, parents = []) {
+    if (!root || !name) {
+      return { foundEmployees: [] };
+    }
 
-function getIndirectReports(employee) {
-  if (!employee.directReports || employee.directReports.length === 0) {
-    return [];
+    let result = { foundEmployees: [] };
+
+    if (root.name === name) {
+      result.foundEmployees.push({
+        employee: root,
+        managerNames: parents,
+        directReports: this.getDirectReports(root),
+        indirectReports: this.getIndirectReports(root),
+      });
+    }
+
+    if (Array.isArray(root.directReports)) {
+      root.directReports.forEach((direct) => {
+        const directResult = this.searchEmployeeByName(
+          direct,
+          name,
+          parents.concat(root.name)
+        );
+        result.foundEmployees.push(...directResult.foundEmployees);
+      });
+    }
+
+    return result;
   }
 
-  let indirectReports = [];
-  employee.directReports.forEach((direct) => {
-    indirectReports.push(...getDirectReports(direct));
-    indirectReports.push(...getIndirectReports(direct));
-  });
+  getDirectReports(employee) {
+    return employee.directReports
+      ? employee.directReports.map((direct) => direct.name)
+      : [];
+  }
 
-  return indirectReports;
+  getIndirectReports(employee) {
+    if (!employee.directReports || employee.directReports.length === 0) {
+      return [];
+    }
+
+    let indirectReports = [];
+    employee.directReports.forEach((direct) => {
+      indirectReports.push(...this.getDirectReports(direct));
+      indirectReports.push(...this.getIndirectReports(direct));
+    });
+
+    return indirectReports;
+  }
 }
 
 module.exports = {
-  buildTree,
-  searchEmployeeByName,
+  EmployeesTreeBuilder,
+  EmployeesSearchService,
 };
