@@ -3,13 +3,13 @@ const router = express.Router();
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const {
-  EmployeesTreeBuilder,
-  EmployeesSearchService,
+  EmployeeTreeBuilder,
+  EmployeeSearchService,
 } = require("../functions/tree");
 
 router.use(fileUpload());
 
-const SESSION_SECRET = "read-file-employees";
+const READ_FILE_SESSION_SECRET = "read-file-employees";
 const EMPLOYEES_VIEW = "employees";
 
 class EmployeesController {
@@ -18,34 +18,35 @@ class EmployeesController {
     this.employeesSearchService = employeesSearchService;
   }
 
-  // Handles the GET request to retrieve and display the employees tree
   getEmployeesTree(req, res) {
     try {
-      const employeesJsonData = req.session ? req.session.fileContents : null;
+      const employeesJsonData = req.session
+        ? req.session.employeesJsonData
+        : null;
 
       if (employeesJsonData) {
-        // Parse JSON data and build the employees tree
         const employeesData = JSON.parse(employeesJsonData);
-        const treeRoots = this.employeesTreeBuilder.buildTree(employeesData);
+        const employeeHierarchy =
+          this.employeesTreeBuilder.buildTree(employeesData);
 
-        // Search for an employee by name in the tree
         const employeeToSearch = req.query.name;
-        const result = this.employeesSearchService.searchEmployeeByName(
-          treeRoots[0],
-          employeeToSearch
-        );
+        const employeeSearchResult =
+          this.employeesSearchService.searchEmployeeByName(
+            employeeHierarchy[0],
+            employeeToSearch
+          );
 
-        if (result.foundEmployees.length > 0) {
-          result.foundEmployees.forEach((map) => {
-            map.managerNames.push(employeeToSearch);
+        if (employeeSearchResult.foundEmployees.length > 0) {
+          employeeSearchResult.foundEmployees.forEach((employee) => {
+            employee.managerNames.push(employeeToSearch);
           });
         }
 
         res.render(EMPLOYEES_VIEW, {
-          data: result,
-          name: employeeToSearch,
-          root: treeRoots,
-          fileContents: employeesJsonData,
+          employeeSearchResult: employeeSearchResult,
+          employeeToSearch: employeeToSearch,
+          employeeHierarchy: employeeHierarchy,
+          employeesJsonData: employeesJsonData,
         });
       } else {
         res.render(EMPLOYEES_VIEW);
@@ -56,22 +57,21 @@ class EmployeesController {
     }
   }
 
-  // Handles the POST request to upload a file employees JSON data
   uploadFileEmployees(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send("No files were uploaded.");
     }
 
-    const uploadedFile = req.files.file;
-    const fileContents = uploadedFile.data.toString("utf8");
-    req.session.fileContents = fileContents;
+    const uploadedFileEmployeesJSON = req.files.file;
+    const employeesJsonData = uploadedFileEmployeesJSON.data.toString("utf8");
+    req.session.employeesJsonData = employeesJsonData;
 
     res.redirect(`/${EMPLOYEES_VIEW}`);
   }
 }
 
-const employeesTreeBuilder = new EmployeesTreeBuilder();
-const employeesSearchService = new EmployeesSearchService();
+const employeesTreeBuilder = new EmployeeTreeBuilder();
+const employeesSearchService = new EmployeeSearchService();
 const employeesController = new EmployeesController(
   employeesTreeBuilder,
   employeesSearchService
@@ -79,7 +79,7 @@ const employeesController = new EmployeesController(
 
 router.use(
   session({
-    secret: SESSION_SECRET,
+    secret: READ_FILE_SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
