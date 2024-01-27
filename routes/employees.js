@@ -1,13 +1,13 @@
 const express = require("express");
-const router = express.Router();
-const fileUpload = require("express-fileupload");
-const session = require("express-session");
+const employeesRouter = express.Router();
+const employeesFileUpload = require("express-fileupload");
+const employeesSession = require("express-session");
 const {
   EmployeeTreeBuilder,
   EmployeeSearchService,
 } = require("../functions/tree");
 
-router.use(fileUpload());
+employeesRouter.use(employeesFileUpload());
 
 const READ_FILE_SESSION_SECRET = "read-file-employees";
 const EMPLOYEES_VIEW = "employees";
@@ -77,17 +77,19 @@ const employeesController = new EmployeesController(
   employeesSearchService
 );
 
-router.use(
-  session({
+employeesRouter.use(
+  employeesSession({
     secret: READ_FILE_SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
 );
 
-router.get("/", (req, res) => employeesController.getEmployeesTree(req, res));
-router.post("/", (req, res) =>
+employeesRouter.get("/", (req, res) =>
+  employeesController.getEmployeesTree(req, res)
+);
+employeesRouter.post("/", (req, res) =>
   employeesController.uploadFileEmployees(req, res)
 );
 
-module.exports = router;
+module.exports = employeesRouter;
