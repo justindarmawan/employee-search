@@ -3,7 +3,7 @@ const employeesRouter = express.Router();
 const employeesFileUpload = require("express-fileupload");
 const employeesSession = require("express-session");
 const {
-  EmployeeTreeBuilder,
+  EmployeeHierarchyBuilder,
   EmployeeSearchService,
 } = require("../functions/tree");
 
@@ -13,8 +13,8 @@ const READ_FILE_SESSION_SECRET = "read-file-employees";
 const EMPLOYEES_VIEW = "employees";
 
 class EmployeesController {
-  constructor(employeesTreeBuilder, employeesSearchService) {
-    this.employeesTreeBuilder = employeesTreeBuilder;
+  constructor(employeesHierarchyBuilder, employeesSearchService) {
+    this.employeesHierarchyBuilder = employeesHierarchyBuilder;
     this.employeesSearchService = employeesSearchService;
   }
 
@@ -27,7 +27,7 @@ class EmployeesController {
       if (employeesJsonData) {
         const employeesData = JSON.parse(employeesJsonData);
         const employeeHierarchy =
-          this.employeesTreeBuilder.buildTree(employeesData);
+          this.employeesHierarchyBuilder.buildTree(employeesData);
 
         const employeeToSearch = req.query.name;
         const employeeSearchResult =
@@ -64,10 +64,10 @@ class EmployeesController {
   }
 }
 
-const employeesTreeBuilder = new EmployeeTreeBuilder();
+const employeesHierarchyBuilder = new EmployeeHierarchyBuilder();
 const employeesSearchService = new EmployeeSearchService();
 const employeesController = new EmployeesController(
-  employeesTreeBuilder,
+  employeesHierarchyBuilder,
   employeesSearchService
 );
 

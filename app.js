@@ -3,13 +3,10 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 
-// Use CORS middleware
 app.use(cors());
 
-// Use EJS as view
 app.set("view engine", "ejs");
 
-// Serve static files in public dir
 app.use(express.static("public"));
 
 const employeeRouter = require("./routes/employees");

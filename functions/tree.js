@@ -6,8 +6,8 @@ class EmployeeNode {
   }
 }
 
-class EmployeeTreeBuilder {
-  buildTree(employeesData, managerId = null) {
+class EmployeeHierarchyBuilder {
+  buildHierarchy(employeesData, managerId = null) {
     if (!Array.isArray(employeesData) || employeesData.length === 0) {
       return null;
     }
@@ -26,7 +26,10 @@ class EmployeeTreeBuilder {
       const currentManagerId = employeeData.managerId;
 
       if (currentManagerId === managerId) {
-        const directReport = this.buildTree(employeesData, employeeData.id);
+        const directReport = this.buildHierarchy(
+          employeesData,
+          employeeData.id
+        );
         if (directReport) {
           employeeNode.directReports = directReport;
         }
@@ -96,6 +99,6 @@ class EmployeeSearchService {
 }
 
 module.exports = {
-  EmployeeTreeBuilder,
+  EmployeeHierarchyBuilder,
   EmployeeSearchService,
 };
