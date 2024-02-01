@@ -27,7 +27,7 @@ class EmployeesController {
       if (employeesJsonData) {
         const employeesData = JSON.parse(employeesJsonData);
         const employeeHierarchy =
-          this.employeesHierarchyBuilder.buildTree(employeesData);
+          this.employeesHierarchyBuilder.buildHierarchy(employeesData);
 
         const employeeToSearch = req.query.name;
         const employeeSearchResult =
