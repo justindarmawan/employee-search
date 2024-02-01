@@ -36,12 +36,6 @@ class EmployeesController {
             employeeToSearch
           );
 
-        if (employeeSearchResult.foundEmployees.length > 0) {
-          employeeSearchResult.foundEmployees.forEach((employee) => {
-            employee.managerNames.push(employeeToSearch);
-          });
-        }
-
         res.render(EMPLOYEES_VIEW, {
           employeeSearchResult: employeeSearchResult,
           employeeToSearch: employeeToSearch,

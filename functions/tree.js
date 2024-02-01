@@ -25,10 +25,7 @@ class EmployeeTreeBuilder {
       const employeeNode = idToEmployeesMap.get(employeeData.id);
       const currentManagerId = employeeData.managerId;
 
-      if (
-        currentManagerId === managerId ||
-        (managerId === null && currentManagerId === null)
-      ) {
+      if (currentManagerId === managerId) {
         const directReport = this.buildTree(employeesData, employeeData.id);
         if (directReport) {
           employeeNode.directReports = directReport;
@@ -52,7 +49,7 @@ class EmployeeSearchService {
     if (employeeHierarchy.name === employeeToSearch) {
       employeeSearchResult.foundEmployees.push({
         employee: employeeHierarchy,
-        managerNames: managerNames,
+        managerNames: managerNames.concat(employeeToSearch),
         directReports: this.getDirectReports(employeeHierarchy),
         indirectReports: this.getIndirectReports(employeeHierarchy),
       });
